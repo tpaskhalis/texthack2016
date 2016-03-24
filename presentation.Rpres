@@ -1,0 +1,129 @@
+Visual Text Analytics and Social Science Hackathon
+========================================================
+author: Tom Paskhalis, LSE
+date: 24th March, 2016
+autosize: true
+
+Wordfish model
+========================================================
+
+```{r, echo=FALSE}
+library(plotly)
+library(ggplot2)
+library(dplyr)
+
+load("eiffel.RData")
+```
+
+Slapin and Proksch (2008)
+A Scaling Model for Estimating Time-Series Party Positions from Texts
+
+- Parametric scaling model
+- Poisson distribution
+- EM algorithm (Rcpp implementation in quanteda)
+- "Eiffel tower" plot (word fixed against word specific effects)
+
+Base R visualization
+========================================================
+
+```{r, echo=FALSE, fig.align="center"}
+plot(eiffel$beta, eiffel$psi, type="n", xlab="Word Weights", ylab="Word Fixed Effects")
+text(eiffel$beta, eiffel$psi, eiffel$word, col = "grey")
+```
+
+Base R inspection
+========================================================
+
+- base R data inspection (head, tail, min, max, subset)
+- RStudio tools (viewer)
+- identify() function
+
+```{r, echo=TRUE, eval=FALSE}
+X11()
+plot(eiffel$beta, eiffel$psi, type="p", xlab="Word Weights", ylab="Word Fixed Effects")
+identify(eiffel$beta, eiffel$psi, labels=eiffel$word)
+```
+
+Base R with highlighted words
+========================================================
+
+```{r, echo=FALSE, fig.align="center"}
+highlight <- c("factory", "fiscal", "trump", "racism", "sustainable", "sanders",
+               "islamic", "texas", "prime-time", "the", "and", "have")
+plot(eiffel$beta, eiffel$psi, type="n", xlab="Word Weights", ylab="Word Fixed Effects")
+text(eiffel$beta[!(eiffel$word %in% highlight)],
+     eiffel$psi[!(eiffel$word %in% highlight)],
+     eiffel$word[!(eiffel$word %in% highlight)],
+     col = "grey")
+text(eiffel$beta[eiffel$word %in% highlight],
+     eiffel$psi[eiffel$word %in% highlight],
+     eiffel$word[eiffel$word %in% highlight],
+     col = "black")
+```
+
+ggplot2 
+========================================================
+
+```{r, echo=FALSE, fig.align="center"}
+ggplot(filter(eiffel, !(word %in% highlight)), aes(beta, psi)) + 
+  geom_text(aes(label = word), colour="grey") + xlab("Word Weights") + 
+  ylab("Word Fixed Effects") + theme_bw() +
+  geom_text(data=filter(eiffel, word %in% highlight), aes(label = word), colour="black")
+```
+
+
+ggplot2 with semi-transparent words
+========================================================
+
+```{r, echo=FALSE, fig.align="center"}
+ggplot(filter(eiffel, !(word %in% highlight)), aes(beta, psi)) + 
+  geom_text(aes(label = word), colour="grey", alpha=0.7) + xlab("Word Weights") + 
+  ylab("Word Fixed Effects") + theme_bw() +
+  geom_text(data=filter(eiffel, word %in% highlight), aes(label = word), colour="black")
+```
+
+plotly
+========================================================
+
+https://plot.ly
+
+https://github.com/ropensci/plotly
+
+- plotly.js based on d3.js and stack.gl
+- clients for R, Python, Matlab, Node and Julia
+- open source, source code on GitHub, part of rOpenSci
+- smooth integration with ggplot2 and Shiny
+
+plotly in R
+========================================================
+
+```{r, echo=TRUE, eval=FALSE}
+p <- ggplot(eiffel, aes(beta, psi)) + 
+      geom_text(aes(label = word), colour="grey", alpha=0.7) + 
+      xlab("Word Weights") + 
+      ylab("Word Fixed Effects") + 
+      theme_bw()
+
+gg <- ggplotly(p)
+```
+
+plotly API in R
+========================================================
+
+```{r, echo=TRUE, eval=FALSE}
+Sys.setenv("plotly_username" = "")
+Sys.setenv("plotly_api_key" = "")
+
+plotly_POST(gg, filename="texthack", sharing="public")
+```
+
+https://plot.ly/~tpaskhalis/0
+
+Materials
+========================================================
+
+Thank you!
+
+https://plot.ly/~tpaskhalis/0
+
+https://github.com/tpaskhalis/texthack2016
